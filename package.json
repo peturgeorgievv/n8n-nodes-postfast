@@ -1,0 +1,61 @@
+{
+  "name": "n8n-nodes-postfast",
+  "version": "0.1.0",
+  "description": "n8n community node for PostFast social media scheduling API",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "postfast",
+    "social-media",
+    "scheduling",
+    "automation"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "peturgeorgievv",
+    "email": "me@peturgeorgievv.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peturgeorgievv/n8n-nodes-postfast"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "n8n-node dev",
+    "build": "n8n-node build",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "release": "n8n-node release",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      {
+        "name": "postFastApi",
+        "file": "dist/credentials/PostFastApi.credentials.js"
+      }
+    ],
+    "nodes": [
+      {
+        "name": "PostFast",
+        "file": "dist/nodes/PostFast/PostFast.node.js"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "^0.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "globals": "^16.4.0",
+    "n8n-core": "^1.114.1",
+    "n8n-workflow": "^1.114.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
