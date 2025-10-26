@@ -6,6 +6,7 @@ import {
 	NodeApiError,
 	NodeOperationError,
 	IDataObject,
+	IHttpRequestOptions,
 } from 'n8n-workflow';
 
 export class PostFast implements INodeType {
@@ -732,7 +733,7 @@ export class PostFast implements INodeType {
 		for (let i = 0; i < items.length; i++) {
 			try {
 				let responseData;
-				const options: any = {
+				const options: IHttpRequestOptions = {
 					headers: {
 						'pf-api-key': credentials.apiKey,
 						'Content-Type': 'application/json',
@@ -780,10 +781,10 @@ export class PostFast implements INodeType {
 						const controlsInput = this.getNodeParameter('controls', i) as IDataObject;
 
 						// Build posts array
-						const posts: any[] = [];
+						const posts: IDataObject[] = [];
 						if (postsInput.post && Array.isArray(postsInput.post)) {
 							for (const postItem of postsInput.post) {
-								const post: any = {
+								const post: IDataObject = {
 									socialMediaId: postItem.socialMediaId,
 									content: postItem.content,
 								};
@@ -844,7 +845,7 @@ export class PostFast implements INodeType {
 
 						// Add controls if any were set
 						if (Object.keys(controls).length > 0) {
-							options.body.controls = controls;
+							(options.body as IDataObject).controls = controls;
 						}
 
 						responseData = await this.helpers.httpRequest(options);
@@ -896,7 +897,7 @@ export class PostFast implements INodeType {
 							let currentPage = 0;
 
 							while (hasNextPage) {
-								options.qs.page = currentPage;
+								(options.qs as IDataObject).page = currentPage;
 								const response = await this.helpers.httpRequest(options);
 
 								if (response.data && Array.isArray(response.data)) {
@@ -938,11 +939,14 @@ export class PostFast implements INodeType {
 				} else {
 					returnData.push({ json: { response: responseData } });
 				}
-			} catch (error: any) {
+			} catch (error) {
 				// Enhanced error handling
-				if (error.response) {
-					const statusCode = error.response.statusCode;
-					const errorMessage = error.response.body?.message || error.response.body?.error || error.message;
+				const err = error as IDataObject & { response?: IDataObject; code?: string; message?: string };
+				if (err.response) {
+					const statusCode = (err.response as IDataObject).statusCode;
+					const errorMessage = (err.response as IDataObject & { body?: IDataObject }).body?.message ||
+										(err.response as IDataObject & { body?: IDataObject }).body?.error ||
+										err.message;
 
 					let friendlyMessage = `PostFast API Error (${statusCode}): ${errorMessage}`;
 
@@ -957,11 +961,11 @@ export class PostFast implements INodeType {
 						friendlyMessage = `Invalid request: ${errorMessage}. Please check your input parameters.`;
 					}
 
-					throw new NodeApiError(this.getNode(), error, {
+					throw new NodeApiError(this.getNode(), {}, {
 						message: friendlyMessage,
 						description: `Operation: ${resource}.${operation}`,
 					});
-				} else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+				} else if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
 					throw new NodeOperationError(
 						this.getNode(),
 						`Cannot connect to PostFast API. Please check your API key and network connection.`,
@@ -970,7 +974,7 @@ export class PostFast implements INodeType {
 				} else {
 					throw new NodeOperationError(
 						this.getNode(),
-						`Unexpected error during ${operation}: ${error.message}`,
+						`Unexpected error during ${operation}: ${err.message || 'Unknown error'}`,
 						{ itemIndex: i }
 					);
 				}
