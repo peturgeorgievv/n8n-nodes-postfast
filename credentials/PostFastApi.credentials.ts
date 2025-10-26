@@ -21,15 +21,6 @@ export class PostFastApi implements ICredentialType {
 			required: true,
 			description: 'Your PostFast API key',
 		},
-		{
-			displayName: 'Base URL',
-			name: 'baseUrl',
-			type: 'string',
-			default: 'https://api.postfa.st',
-			required: true,
-			description: 'Override for staging/self-hosted PostFast instances',
-			placeholder: 'https://api.postfa.st',
-		},
 	];
 
 	authenticate: IAuthenticateGeneric = {
@@ -43,7 +34,7 @@ export class PostFastApi implements ICredentialType {
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.baseUrl}}',
+			baseURL: 'https://api.postfa.st',
 			url: '/social-media/my-social-accounts',
 			method: 'GET',
 		},

@@ -8,7 +8,7 @@ This is an n8n community node for [PostFast](https://postfa.st) - a comprehensiv
 
 - 🚀 **Multi-Platform Support**: Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Pinterest
 - 📸 **Media Management**: Upload images and videos with pre-signed S3 URLs
-- 📅 **Advanced Scheduling**: Schedule posts with timezone support
+- 📅 **Advanced Scheduling**: Schedule posts using UTC timestamps (ISO 8601 format)
 - 🎯 **Platform-Specific Controls**: Reels, Stories, Shorts, Carousels, Drafts
 - 🔍 **Smart Filtering**: Query posts by platform, status, and date ranges
 - 📊 **Pagination Support**: Handle large datasets efficiently
@@ -35,14 +35,13 @@ To use this node, you'll need:
 1. **PostFast API Key**:
    - Log in to your PostFast account
    - Navigate to Settings → API Keys
-   - Create a new API key with appropriate workspace permissions
+   - Create a new API key
    - Copy the key (you won't be able to see it again)
 
 2. **Add Credentials in n8n**:
    - In n8n, go to Credentials
    - Create new "PostFast API" credentials
    - Enter your API key
-   - (Optional) Override the base URL for self-hosted instances (default: `https://api.postfa.st`)
 
 ## Resources & Operations
 
@@ -248,7 +247,7 @@ npm publish --access public
 - **Documentation**: [PostFast API Docs](https://api.postfa.st/docs)
 - **Issues**: [GitHub Issues](https://github.com/peturgeorgievv/n8n-nodes-postfast/issues)
 - **Community**: [n8n Community Forum](https://community.n8n.io)
-- **PostFast Support**: [support@postfa.st](mailto:support@postfa.st)
+- **Developer Support**: [me@peturgeorgievv.com](mailto:me@peturgeorgievv.com)
 
 ## License
 

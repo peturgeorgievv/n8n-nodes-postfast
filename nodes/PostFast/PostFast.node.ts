@@ -724,7 +724,7 @@ export class PostFast implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 		const credentials = await this.getCredentials('postFastApi');
-		const baseUrl = (credentials.baseUrl as string) || 'https://api.postfa.st';
+		const baseUrl = 'https://api.postfa.st';
 
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
@@ -964,7 +964,7 @@ export class PostFast implements INodeType {
 				} else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
 					throw new NodeOperationError(
 						this.getNode(),
-						`Cannot connect to PostFast API at ${baseUrl}. Please check the Base URL in your credentials.`,
+						`Cannot connect to PostFast API. Please check your API key and network connection.`,
 						{ itemIndex: i }
 					);
 				} else {
