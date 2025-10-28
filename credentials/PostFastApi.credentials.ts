@@ -24,7 +24,7 @@ export class PostFastApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				'pf-api-key': '{{$credentials.apiKey}}',
+				'pf-api-key': '={{$credentials.apiKey}}',
 			},
 		},
 	};
