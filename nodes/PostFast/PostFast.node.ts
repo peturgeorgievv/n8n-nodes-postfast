@@ -724,7 +724,6 @@ export class PostFast implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
-		const credentials = await this.getCredentials('postFastApi');
 		const baseUrl = 'https://api.postfa.st';
 
 		const resource = this.getNodeParameter('resource', 0) as string;
@@ -735,7 +734,6 @@ export class PostFast implements INodeType {
 				let responseData;
 				const options: IHttpRequestOptions = {
 					headers: {
-						'pf-api-key': credentials.apiKey,
 						'Content-Type': 'application/json',
 					},
 					method: 'GET',
@@ -758,7 +756,7 @@ export class PostFast implements INodeType {
 							count,
 						};
 
-						responseData = await this.helpers.httpRequest(options);
+						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
 					}
 				}
 
@@ -768,7 +766,7 @@ export class PostFast implements INodeType {
 				else if (resource === 'socialAccount') {
 					if (operation === 'getAll') {
 						options.url = `${baseUrl}/social-media/my-social-accounts`;
-						responseData = await this.helpers.httpRequest(options);
+						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
 					}
 				}
 
@@ -848,7 +846,7 @@ export class PostFast implements INodeType {
 							(options.body as IDataObject).controls = controls;
 						}
 
-						responseData = await this.helpers.httpRequest(options);
+						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
 					} else if (operation === 'getMany') {
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const filters = this.getNodeParameter('filters', i) as IDataObject;
@@ -898,7 +896,7 @@ export class PostFast implements INodeType {
 
 							while (hasNextPage) {
 								(options.qs as IDataObject).page = currentPage;
-								const response = await this.helpers.httpRequest(options);
+								const response = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
 
 								if (response.data && Array.isArray(response.data)) {
 									allData.push(...response.data);
@@ -913,7 +911,7 @@ export class PostFast implements INodeType {
 
 							responseData = allData;
 						} else {
-							responseData = await this.helpers.httpRequest(options);
+							responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
 							// Extract just the data array if it exists
 							if (responseData.data) {
 								responseData = responseData.data;
@@ -925,7 +923,7 @@ export class PostFast implements INodeType {
 						options.method = 'DELETE';
 						options.url = `${baseUrl}/social-posts/${postId}`;
 
-						responseData = await this.helpers.httpRequest(options);
+						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
 					}
 				}
 
