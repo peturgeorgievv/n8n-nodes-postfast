@@ -938,43 +938,55 @@ export class PostFast implements INodeType {
 					returnData.push({ json: { response: responseData }, pairedItem: { item: i } });
 				}
 			} catch (error) {
-				// Enhanced error handling
 				const err = error as IDataObject & { response?: IDataObject; code?: string; message?: string };
+
+				// Build error message
+				let errorMessage: string;
+				const errorDescription: string = `Operation: ${resource}.${operation}`;
+
 				if (err.response) {
 					const statusCode = (err.response as IDataObject).statusCode;
-					const errorMessage = (err.response as IDataObject & { body?: IDataObject }).body?.message ||
+					const apiMessage = (err.response as IDataObject & { body?: IDataObject }).body?.message ||
 										(err.response as IDataObject & { body?: IDataObject }).body?.error ||
 										err.message;
 
-					let friendlyMessage = `PostFast API Error (${statusCode}): ${errorMessage}`;
-
-					// Add context-specific error messages
 					if (statusCode === 401) {
-						friendlyMessage = 'Authentication failed. Please check your API key in the PostFast credentials.';
+						errorMessage = 'Authentication failed. Please check your API key in the PostFast credentials.';
 					} else if (statusCode === 404) {
-						friendlyMessage = 'Resource not found. Please check the endpoint or ID.';
+						errorMessage = 'Resource not found. Please check the endpoint or ID.';
 					} else if (statusCode === 429) {
-						friendlyMessage = 'Rate limit exceeded. Please wait before making more requests. Note: X (Twitter) has a limit of 5 posts per account per day.';
+						errorMessage = 'Rate limit exceeded. Please wait before making more requests. Note: X (Twitter) has a limit of 5 posts per account per day.';
 					} else if (statusCode === 400) {
-						friendlyMessage = `Invalid request: ${errorMessage}. Please check your input parameters.`;
+						errorMessage = `Invalid request: ${apiMessage}. Please check your input parameters.`;
+					} else {
+						errorMessage = `PostFast API Error (${statusCode}): ${apiMessage}`;
 					}
-
-					throw new NodeApiError(this.getNode(), {}, {
-						message: friendlyMessage,
-						description: `Operation: ${resource}.${operation}`,
-					});
 				} else if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
-					throw new NodeOperationError(
-						this.getNode(),
-						`Cannot connect to PostFast API. Please check your API key and network connection.`,
-						{ itemIndex: i }
-					);
+					errorMessage = 'Cannot connect to PostFast API. Please check your API key and network connection.';
 				} else {
-					throw new NodeOperationError(
-						this.getNode(),
-						`Unexpected error during ${operation}: ${err.message || 'Unknown error'}`,
-						{ itemIndex: i }
-					);
+					errorMessage = `Unexpected error during ${operation}: ${err.message || 'Unknown error'}`;
+				}
+
+				// Handle continueOnFail
+				if (this.continueOnFail()) {
+					returnData.push({
+						json: { error: errorMessage },
+						pairedItem: { item: i },
+					});
+					continue;
+				}
+
+				// Throw appropriate error type
+				if (err.response) {
+					throw new NodeApiError(this.getNode(), {}, {
+						message: errorMessage,
+						description: errorDescription,
+					});
+				} else {
+					throw new NodeOperationError(this.getNode(), errorMessage, {
+						description: errorDescription,
+						itemIndex: i,
+					});
 				}
 			}
 		}
