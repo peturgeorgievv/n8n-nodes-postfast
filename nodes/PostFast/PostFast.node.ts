@@ -930,12 +930,12 @@ export class PostFast implements INodeType {
 				// Handle response data
 				if (Array.isArray(responseData)) {
 					for (const item of responseData) {
-						returnData.push({ json: item });
+						returnData.push({ json: item, pairedItem: { item: i } });
 					}
 				} else if (responseData && typeof responseData === 'object') {
-					returnData.push({ json: responseData });
+					returnData.push({ json: responseData, pairedItem: { item: i } });
 				} else {
-					returnData.push({ json: { response: responseData } });
+					returnData.push({ json: { response: responseData }, pairedItem: { item: i } });
 				}
 			} catch (error) {
 				// Enhanced error handling
