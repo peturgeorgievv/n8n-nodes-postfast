@@ -215,6 +215,52 @@ export class PostFast implements INodeType {
 			// Social Post: Create
 			// ===========================
 			{
+				displayName: 'Status',
+				name: 'status',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['socialPost'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						name: 'Scheduled',
+						value: 'SCHEDULED',
+					},
+					{
+						name: 'Draft',
+						value: 'DRAFT',
+					},
+				],
+				default: 'SCHEDULED',
+				description: 'Status for all posts in this batch',
+			},
+			{
+				displayName: 'Approval Status',
+				name: 'approvalStatus',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['socialPost'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						name: 'Approved',
+						value: 'APPROVED',
+					},
+					{
+						name: 'Pending Approval',
+						value: 'PENDING_APPROVAL',
+					},
+				],
+				default: 'APPROVED',
+				description: 'Approval status for all posts in this batch',
+			},
+			{
 				displayName: 'Posts',
 				name: 'posts',
 				type: 'fixedCollection',
@@ -260,40 +306,6 @@ export class PostFast implements INodeType {
 								type: 'dateTime',
 								default: '',
 								description: 'When to publish the post (ISO 8601 format). Required unless status is DRAFT.',
-							},
-							{
-								displayName: 'Status',
-								name: 'status',
-								type: 'options',
-								options: [
-									{
-										name: 'Scheduled',
-										value: 'SCHEDULED',
-									},
-									{
-										name: 'Draft',
-										value: 'DRAFT',
-									},
-								],
-								default: 'SCHEDULED',
-								description: 'Post status',
-							},
-							{
-								displayName: 'Approval Status',
-								name: 'approvalStatus',
-								type: 'options',
-								options: [
-									{
-										name: 'Approved',
-										value: 'APPROVED',
-									},
-									{
-										name: 'Pending Approval',
-										value: 'PENDING_APPROVAL',
-									},
-								],
-								default: 'APPROVED',
-								description: 'Approval status for the post',
 							},
 							{
 								displayName: 'Media Items',
@@ -813,6 +825,8 @@ export class PostFast implements INodeType {
 					if (operation === 'create') {
 						const postsInput = this.getNodeParameter('posts', i) as IDataObject;
 						const controlsInput = this.getNodeParameter('controls', i) as IDataObject;
+						const status = this.getNodeParameter('status', i) as string;
+						const approvalStatus = this.getNodeParameter('approvalStatus', i) as string;
 
 						// Build posts array
 						const posts: IDataObject[] = [];
@@ -823,15 +837,9 @@ export class PostFast implements INodeType {
 									content: postItem.content,
 								};
 
-								// Add optional fields
+								// Add scheduledAt if provided (this is per-post)
 								if (postItem.scheduledAt) {
 									post.scheduledAt = postItem.scheduledAt;
-								}
-								if (postItem.status) {
-									post.status = postItem.status;
-								}
-								if (postItem.approvalStatus) {
-									post.approvalStatus = postItem.approvalStatus;
 								}
 
 								// Add media items if provided
@@ -875,6 +883,8 @@ export class PostFast implements INodeType {
 						options.url = `${baseUrl}/social-posts`;
 						options.body = {
 							posts,
+							status,
+							approvalStatus,
 						};
 
 						// Add controls if any were set
