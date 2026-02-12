@@ -51,7 +51,7 @@ To use this node, you'll need:
 Generate pre-signed S3 URLs for uploading media files.
 
 **Parameters:**
-- **Content Type**: MIME type (image/jpeg, image/png, image/gif, video/mp4, video/quicktime)
+- **Content Type**: MIME type (image/jpeg, image/png, image/gif, video/mp4, video/quicktime, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation)
 - **Count**: Number of URLs to generate (1-10)
 
 **Limits:**
@@ -78,6 +78,22 @@ Retrieve all connected social media accounts for your workspace.
 
 **Rate limit:** 90 requests per hour
 
+#### Get Pinterest Boards
+Retrieve Pinterest boards for a connected Pinterest account. Use the returned `boardId` in the `Pinterest Board ID` control when creating Pinterest posts.
+
+**Parameters:**
+- **Social Media Account ID**: ID of the connected Pinterest account (from Get All)
+
+**Rate limit:** 90 requests per hour
+
+#### Get YouTube Playlists
+Retrieve YouTube playlists for a connected YouTube account. Use the returned `playlistId` in the `YouTube Playlist ID` control when creating YouTube posts.
+
+**Parameters:**
+- **Social Media Account ID**: ID of the connected YouTube account (from Get All)
+
+**Rate limit:** 90 requests per hour
+
 ---
 
 ### 📝 Social Post Resource
@@ -91,37 +107,50 @@ Create and schedule posts with platform-specific features.
 - **Content**: Post text with emoji support
 - **Scheduled At**: ISO 8601 datetime
 - **Media Items**: Images/videos with S3 keys
+- **First Comment**: Automatic first comment posted ~10 seconds after publish (supported on X, Instagram, Facebook, YouTube, and Threads)
 
 **Platform-Specific Controls:**
 
+**X (Twitter):**
+- Community ID for posting to X Communities
+- Quote Tweet URL for quoting tweets with commentary
+- Retweet URL for retweeting without changes
+
 **Facebook:**
 - Content Types: Post, Reel, Story
+- Reels collaborators
 - Multi-image support
-- Video thumbnails
 
 **Instagram:**
 - Publish Types: Timeline, Story, Reel
 - Grid posting option
+- Collaborators
 - Carousel support (up to 10 items)
 
 **TikTok:**
-- Privacy: Public, Friends, Private
+- Privacy: Public, Mutual Friends, Only Me
 - Allow Comments/Duet/Stitch
 - Draft mode
+- Brand Organic / Brand Content flags
+- Auto-add music
 - Carousel posts (2-35 images)
-- Video covers
 
 **YouTube:**
+- Title, Privacy (Public, Private, Unlisted)
+- Tags, Category ID
 - Shorts support
-- Video thumbnails
+- Made for Kids (COPPA) flag
+- Playlist ID (from Social Account > Get YouTube Playlists)
 
 **LinkedIn:**
-- Visibility: Anyone, Connections
-- Professional content
+- Document attachments (PDF, DOC, DOCX, PPT, PPTX)
+- Attachment title
 
 **Pinterest:**
-- Board selection
-- Rich pins
+- Board ID (required, from Social Account > Get Pinterest Boards)
+- Destination link URL
+- Content parsing: first line → title, remaining → description
+- Carousel pins (2-5 static images)
 
 #### Get Many Posts
 Query and filter your scheduled posts with advanced options.
