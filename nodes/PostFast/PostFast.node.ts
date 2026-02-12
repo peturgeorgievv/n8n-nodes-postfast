@@ -96,6 +96,18 @@ export class PostFast implements INodeType {
 						description: 'Get all connected social media accounts',
 						action: 'Get all social accounts',
 					},
+					{
+						name: 'Get Pinterest Boards',
+						value: 'getPinterestBoards',
+						description: 'Get Pinterest boards for a connected account',
+						action: 'Get Pinterest boards',
+					},
+					{
+						name: 'Get YouTube Playlists',
+						value: 'getYoutubePlaylists',
+						description: 'Get YouTube playlists for a connected account',
+						action: 'Get YouTube playlists',
+					},
 				],
 				default: 'getAll',
 			},
@@ -209,6 +221,44 @@ export class PostFast implements INodeType {
 					},
 				},
 				description: 'Number of upload URLs to generate',
+			},
+
+			// ===========================
+			// Social Account: Get Pinterest Boards
+			// ===========================
+			{
+				displayName: 'Social Media Account ID',
+				name: 'socialMediaId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['socialAccount'],
+						operation: ['getPinterestBoards'],
+					},
+				},
+				default: '',
+				description: 'ID of the connected Pinterest account (get from Social Account > Get All)',
+				placeholder: '550e8400-e29b-41d4-a716-446655440001',
+			},
+
+			// ===========================
+			// Social Account: Get YouTube Playlists
+			// ===========================
+			{
+				displayName: 'Social Media Account ID',
+				name: 'socialMediaId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['socialAccount'],
+						operation: ['getYoutubePlaylists'],
+					},
+				},
+				default: '',
+				description: 'ID of the connected YouTube account (get from Social Account > Get All)',
+				placeholder: '550e8400-e29b-41d4-a716-446655440001',
 			},
 
 			// ===========================
@@ -370,6 +420,13 @@ export class PostFast implements INodeType {
 									},
 								],
 							},
+							{
+								displayName: 'First Comment',
+								name: 'firstComment',
+								type: 'string',
+								default: '',
+								description: 'Text for an automatic first comment, posted ~10 seconds after the post publishes. Supported on X, Instagram, Facebook, YouTube, and Threads. Not supported on TikTok, Pinterest, BlueSky, or LinkedIn.',
+							},
 						],
 					},
 				],
@@ -397,6 +454,22 @@ export class PostFast implements INodeType {
 						type: 'string',
 						default: '',
 						description: 'Community ID for X posts',
+					},
+					{
+						displayName: 'X Quote Tweet URL',
+						name: 'xQuoteTweetUrl',
+						type: 'string',
+						default: '',
+						description: 'URL of tweet to quote with commentary. Supports content and media attachments. Cannot be used together with X Retweet URL.',
+						placeholder: 'https://x.com/username/status/1234567890',
+					},
+					{
+						displayName: 'X Retweet URL',
+						name: 'xRetweetUrl',
+						type: 'string',
+						default: '',
+						description: 'URL of tweet to retweet without changes. Content and media are ignored when this is provided. Cannot be used together with X Quote Tweet URL.',
+						placeholder: 'https://x.com/username/status/1234567890',
 					},
 					// Facebook Controls
 					{
@@ -597,6 +670,32 @@ export class PostFast implements INodeType {
 						default: false,
 						description: 'COPPA compliance flag',
 					},
+					{
+						displayName: 'YouTube Playlist ID',
+						name: 'youtubePlaylistId',
+						type: 'string',
+						default: '',
+						description: 'YouTube playlist ID to add the video to after publishing. Get available playlists from Social Account > Get YouTube Playlists.',
+						placeholder: 'PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf',
+					},
+					// Pinterest Controls
+					{
+						displayName: 'Pinterest Board ID',
+						name: 'pinterestBoardId',
+						type: 'string',
+						default: '',
+						description: 'Required for Pinterest posts. Get available boards from Social Account > Get Pinterest Boards.',
+						placeholder: '1234567890123456789',
+					},
+					{
+						displayName: 'Pinterest Link',
+						name: 'pinterestLink',
+						type: 'string',
+						default: '',
+						description: 'Destination URL when users click the pin',
+						placeholder: 'https://example.com/my-article',
+					},
+					// LinkedIn Controls
 					{
 						displayName: 'LinkedIn Attachment Key',
 						name: 'linkedinAttachmentKey',
@@ -815,6 +914,14 @@ export class PostFast implements INodeType {
 					if (operation === 'getAll') {
 						options.url = `${baseUrl}/social-media/my-social-accounts`;
 						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
+					} else if (operation === 'getPinterestBoards') {
+						const socialMediaId = this.getNodeParameter('socialMediaId', i) as string;
+						options.url = `${baseUrl}/social-media/${socialMediaId}/pinterest-boards`;
+						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
+					} else if (operation === 'getYoutubePlaylists') {
+						const socialMediaId = this.getNodeParameter('socialMediaId', i) as string;
+						options.url = `${baseUrl}/social-media/${socialMediaId}/youtube-playlists`;
+						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
 					}
 				}
 
@@ -848,6 +955,11 @@ export class PostFast implements INodeType {
 									if (Array.isArray(mediaArray) && mediaArray.length > 0) {
 										post.mediaItems = mediaArray;
 									}
+								}
+
+								// Add firstComment if provided
+								if (postItem.firstComment) {
+									post.firstComment = postItem.firstComment;
 								}
 
 								posts.push(post);
