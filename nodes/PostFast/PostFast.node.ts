@@ -137,6 +137,12 @@ export class PostFast implements INodeType {
 						action: 'Delete social post',
 					},
 					{
+						name: 'Get Analytics',
+						value: 'getAnalytics',
+						description: 'Fetch published posts with their latest performance metrics',
+						action: 'Get analytics',
+					},
+					{
 						name: 'Get Many',
 						value: 'getMany',
 						description: 'Query and paginate social posts',
@@ -716,6 +722,80 @@ export class PostFast implements INodeType {
 			},
 
 			// ===========================
+			// Social Post: Get Analytics
+			// ===========================
+			{
+				displayName: 'Filters',
+				name: 'analyticsFilters',
+				type: 'collection',
+				placeholder: 'Add Filter',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['socialPost'],
+						operation: ['getAnalytics'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Platforms',
+						name: 'platforms',
+						type: 'multiOptions',
+						options: [
+							{
+								name: 'Facebook',
+								value: 'FACEBOOK',
+							},
+							{
+								name: 'Instagram',
+								value: 'INSTAGRAM',
+							},
+							{
+								name: 'LinkedIn',
+								value: 'LINKEDIN',
+							},
+							{
+								name: 'Threads',
+								value: 'THREADS',
+							},
+							{
+								name: 'TikTok',
+								value: 'TIKTOK',
+							},
+							{
+								name: 'YouTube',
+								value: 'YOUTUBE',
+							},
+						],
+						default: [],
+						description: 'Filter by platform',
+					},
+					{
+						displayName: 'Social Media Account IDs',
+						name: 'socialMediaIds',
+						type: 'string',
+						default: '',
+						description: 'Comma-separated UUIDs to filter by specific social media accounts',
+						placeholder: '550e8400-e29b-41d4-a716-446655440001,550e8400-e29b-41d4-a716-446655440002',
+					},
+					{
+						displayName: 'From Date',
+						name: 'from',
+						type: 'dateTime',
+						default: '',
+						description: 'Filter posts published from this date (ISO 8601)',
+					},
+					{
+						displayName: 'To Date',
+						name: 'to',
+						type: 'dateTime',
+						default: '',
+						description: 'Filter posts published until this date (ISO 8601)',
+					},
+				],
+			},
+
+			// ===========================
 			// Social Post: Get Many
 			// ===========================
 			{
@@ -768,12 +848,32 @@ export class PostFast implements INodeType {
 						type: 'multiOptions',
 						options: [
 							{
+								name: 'Bluesky',
+								value: 'BLUESKY',
+							},
+							{
 								name: 'Facebook',
 								value: 'FACEBOOK',
 							},
 							{
 								name: 'Instagram',
 								value: 'INSTAGRAM',
+							},
+							{
+								name: 'LinkedIn',
+								value: 'LINKEDIN',
+							},
+							{
+								name: 'Pinterest',
+								value: 'PINTEREST',
+							},
+							{
+								name: 'Telegram',
+								value: 'TELEGRAM',
+							},
+							{
+								name: 'Threads',
+								value: 'THREADS',
 							},
 							{
 								name: 'TikTok',
@@ -784,16 +884,8 @@ export class PostFast implements INodeType {
 								value: 'X',
 							},
 							{
-								name: 'LinkedIn',
-								value: 'LINKEDIN',
-							},
-							{
 								name: 'YouTube',
 								value: 'YOUTUBE',
-							},
-							{
-								name: 'Pinterest',
-								value: 'PINTEREST',
 							},
 						],
 						default: [],
@@ -1005,6 +1097,33 @@ export class PostFast implements INodeType {
 						}
 
 						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
+					} else if (operation === 'getAnalytics') {
+						const filters = this.getNodeParameter('analyticsFilters', i) as IDataObject;
+
+						const qs: IDataObject = {};
+
+						if (filters.platforms && Array.isArray(filters.platforms) && filters.platforms.length > 0) {
+							qs.platforms = filters.platforms.join(',');
+						}
+
+						if (filters.socialMediaIds) {
+							qs.socialMediaIds = filters.socialMediaIds;
+						}
+
+						if (filters.from) {
+							qs.from = filters.from;
+						}
+						if (filters.to) {
+							qs.to = filters.to;
+						}
+
+						options.url = `${baseUrl}/social-posts/analytics`;
+						options.qs = qs;
+
+						responseData = await this.helpers.httpRequestWithAuthentication.call(this, 'postFastApi', options);
+						if (responseData.data) {
+							responseData = responseData.data;
+						}
 					} else if (operation === 'getMany') {
 						const returnAll = this.getNodeParameter('returnAll', i) as boolean;
 						const filters = this.getNodeParameter('filters', i) as IDataObject;
