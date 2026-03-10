@@ -364,6 +364,25 @@ export class PostFast implements INodeType {
 								description: 'When to publish the post (ISO 8601 format). Required unless status is DRAFT.',
 							},
 							{
+								displayName: 'Media Input Mode',
+								name: 'mediaInputMode',
+								type: 'options',
+								options: [
+									{
+										name: 'UI (Manual)',
+										value: 'ui',
+										description: 'Add media items one by one using the form',
+									},
+									{
+										name: 'JSON (Dynamic)',
+										value: 'json',
+										description: 'Pass a JSON array, useful for dynamic carousel posts',
+									},
+								],
+								default: 'ui',
+								description: 'How to provide media items',
+							},
+							{
 								displayName: 'Media Items',
 								name: 'mediaItems',
 								type: 'fixedCollection',
@@ -371,6 +390,11 @@ export class PostFast implements INodeType {
 									multipleValues: true,
 								},
 								default: {},
+								displayOptions: {
+									show: {
+										mediaInputMode: ['ui'],
+									},
+								},
 								options: [
 									{
 										name: 'media',
@@ -425,6 +449,19 @@ export class PostFast implements INodeType {
 										],
 									},
 								],
+							},
+							{
+								displayName: 'Media Items (JSON)',
+								name: 'mediaItemsJson',
+								type: 'json',
+								default: '[]',
+								displayOptions: {
+									show: {
+										mediaInputMode: ['json'],
+									},
+								},
+								description: 'JSON array of media objects. Each object: { "key": "image/uuid.jpg", "type": "IMAGE", "sortOrder": 0, "coverTimestamp": "" }. Use an expression like {{ $json.mediaItems }} to pass dynamically.',
+								placeholder: '[{ "key": "image/abc.jpg", "type": "IMAGE", "sortOrder": 0 }]',
 							},
 							{
 								displayName: 'First Comment',
@@ -1041,8 +1078,19 @@ export class PostFast implements INodeType {
 									post.scheduledAt = postItem.scheduledAt;
 								}
 
-								// Add media items if provided
-								if (postItem.mediaItems && (postItem.mediaItems as IDataObject).media) {
+								// Add media items if provided (supports both UI and JSON modes)
+								const mediaMode = postItem.mediaInputMode as string || 'ui';
+								if (mediaMode === 'json' && postItem.mediaItemsJson) {
+									let mediaArray: IDataObject[];
+									if (typeof postItem.mediaItemsJson === 'string') {
+										mediaArray = JSON.parse(postItem.mediaItemsJson as string) as IDataObject[];
+									} else {
+										mediaArray = postItem.mediaItemsJson as IDataObject[];
+									}
+									if (Array.isArray(mediaArray) && mediaArray.length > 0) {
+										post.mediaItems = mediaArray;
+									}
+								} else if (postItem.mediaItems && (postItem.mediaItems as IDataObject).media) {
 									const mediaArray = (postItem.mediaItems as IDataObject).media as IDataObject[];
 									if (Array.isArray(mediaArray) && mediaArray.length > 0) {
 										post.mediaItems = mediaArray;
