@@ -721,6 +721,14 @@ export class PostFast implements INodeType {
 						description: 'YouTube playlist ID to add the video to after publishing. Get available playlists from Social Account > Get YouTube Playlists.',
 						placeholder: 'PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf',
 					},
+					{
+						displayName: 'YouTube Thumbnail Key',
+						name: 'youtubeThumbnailKey',
+						type: 'string',
+						default: '',
+						description: 'Media key for a custom YouTube thumbnail image (uploaded via File > Get Upload URL). Formats: JPEG, PNG, GIF, BMP, WebP. Max 2 MB, recommended 1280x720 (16:9). Requires phone-verified YouTube channel.',
+						placeholder: 'image/abc123-uuid.jpg',
+					},
 					// Pinterest Controls
 					{
 						displayName: 'Pinterest Board ID',
