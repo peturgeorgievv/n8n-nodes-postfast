@@ -599,6 +599,10 @@ export class PostFast implements INodeType {
 								value: 'MUTUAL_FRIENDS',
 							},
 							{
+								name: 'Follower of Creator',
+								value: 'FOLLOWER_OF_CREATOR',
+							},
+							{
 								name: 'Only Me',
 								value: 'ONLY_ME',
 							},
@@ -654,6 +658,13 @@ export class PostFast implements INodeType {
 						type: 'boolean',
 						default: false,
 						description: 'Whether to auto-add music',
+					},
+					{
+						displayName: 'TikTok Is AIGC',
+						name: 'tiktokIsAigc',
+						type: 'boolean',
+						default: false,
+						description: 'Whether this content is AI-generated (AIGC disclosure)',
 					},
 					// YouTube Controls
 					{
