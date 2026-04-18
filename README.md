@@ -113,7 +113,6 @@ Create and schedule posts with platform-specific features.
 
 **X (Twitter):**
 - Community ID for posting to X Communities
-- Quote Tweet URL for quoting tweets with commentary
 - Retweet URL for retweeting without changes
 
 **Facebook:**

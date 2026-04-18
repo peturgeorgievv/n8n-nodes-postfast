@@ -499,19 +499,11 @@ export class PostFast implements INodeType {
 						description: 'Community ID for X posts',
 					},
 					{
-						displayName: 'X Quote Tweet URL',
-						name: 'xQuoteTweetUrl',
-						type: 'string',
-						default: '',
-						description: 'URL of tweet to quote with commentary. Supports content and media attachments. Cannot be used together with X Retweet URL.',
-						placeholder: 'https://x.com/username/status/1234567890',
-					},
-					{
 						displayName: 'X Retweet URL',
 						name: 'xRetweetUrl',
 						type: 'string',
 						default: '',
-						description: 'URL of tweet to retweet without changes. Content and media are ignored when this is provided. Cannot be used together with X Quote Tweet URL.',
+						description: 'URL of tweet to retweet without changes. Content and media are ignored when this is provided.',
 						placeholder: 'https://x.com/username/status/1234567890',
 					},
 					// Facebook Controls
