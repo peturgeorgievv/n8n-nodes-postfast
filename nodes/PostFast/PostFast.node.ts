@@ -17,7 +17,7 @@ export class PostFast implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Schedule and manage social media posts across Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, and Pinterest',
+		description: 'Schedule and manage social media posts across Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Threads, Pinterest, Bluesky, Telegram, and Google Business Profile',
 		defaults: {
 			name: 'PostFast - Social Media',
 		},
@@ -180,11 +180,23 @@ export class PostFast implements INodeType {
 						value: 'image/gif',
 					},
 					{
+						name: 'Image (WebP)',
+						value: 'image/webp',
+					},
+					{
 						name: 'Video (MP4)',
 						value: 'video/mp4',
 					},
 					{
+						name: 'Video (WebM)',
+						value: 'video/webm',
+					},
+					{
 						name: 'Video (MOV)',
+						value: 'video/mov',
+					},
+					{
+						name: 'Video (QuickTime)',
 						value: 'video/quicktime',
 					},
 					{
@@ -218,7 +230,7 @@ export class PostFast implements INodeType {
 				default: 1,
 				typeOptions: {
 					minValue: 1,
-					maxValue: 10,
+					maxValue: 8,
 				},
 				displayOptions: {
 					show: {
@@ -226,7 +238,7 @@ export class PostFast implements INodeType {
 						operation: ['getUploadUrl'],
 					},
 				},
-				description: 'Number of upload URLs to generate',
+				description: 'Number of upload URLs to generate (max 8). Video and document content types only allow a count of 1 per request.',
 			},
 
 			// ===========================
@@ -468,7 +480,7 @@ export class PostFast implements INodeType {
 								name: 'firstComment',
 								type: 'string',
 								default: '',
-								description: 'Text for an automatic first comment, posted ~10 seconds after the post publishes. Supported on X, Instagram, Facebook, YouTube, and Threads. Not supported on TikTok, Pinterest, BlueSky, or LinkedIn.',
+								description: 'Text for an automatic first comment, posted ~10 seconds after the post publishes. Supported on Instagram, Facebook, YouTube, Threads, and X. TikTok: only accounts connected via the TikTok Business API. LinkedIn: only accounts connected with the Community Management grant. Not supported on Pinterest, Bluesky, Telegram, or Google Business Profile.',
 							},
 						],
 					},
@@ -491,13 +503,6 @@ export class PostFast implements INodeType {
 				description: 'Platform-specific controls that apply to ALL posts in this batch',
 				options: [
 					// X (Twitter) Controls
-					{
-						displayName: 'X Community ID',
-						name: 'xCommunityId',
-						type: 'string',
-						default: '',
-						description: 'Community ID for X posts',
-					},
 					{
 						displayName: 'X Retweet URL',
 						name: 'xRetweetUrl',
@@ -600,7 +605,7 @@ export class PostFast implements INodeType {
 							},
 						],
 						default: 'PUBLIC',
-						description: 'Privacy setting for TikTok post',
+						description: 'Privacy setting for TikTok post. Deprecated: accounts connected via the TikTok Business API ignore this — videos use the account-default privacy and photos default to public.',
 					},
 					{
 						displayName: 'TikTok Is Draft',
@@ -791,8 +796,16 @@ export class PostFast implements INodeType {
 						type: 'multiOptions',
 						options: [
 							{
+								name: 'Bluesky',
+								value: 'BLUESKY',
+							},
+							{
 								name: 'Facebook',
 								value: 'FACEBOOK',
+							},
+							{
+								name: 'Google Business Profile',
+								value: 'GOOGLE_BUSINESS_PROFILE',
 							},
 							{
 								name: 'Instagram',
@@ -803,12 +816,24 @@ export class PostFast implements INodeType {
 								value: 'LINKEDIN',
 							},
 							{
+								name: 'Pinterest',
+								value: 'PINTEREST',
+							},
+							{
+								name: 'Telegram',
+								value: 'TELEGRAM',
+							},
+							{
 								name: 'Threads',
 								value: 'THREADS',
 							},
 							{
 								name: 'TikTok',
 								value: 'TIKTOK',
+							},
+							{
+								name: 'Twitter/X',
+								value: 'X',
 							},
 							{
 								name: 'YouTube',
@@ -902,6 +927,10 @@ export class PostFast implements INodeType {
 							{
 								name: 'Facebook',
 								value: 'FACEBOOK',
+							},
+							{
+								name: 'Google Business Profile',
+								value: 'GOOGLE_BUSINESS_PROFILE',
 							},
 							{
 								name: 'Instagram',
@@ -1169,11 +1198,12 @@ export class PostFast implements INodeType {
 							qs.socialMediaIds = filters.socialMediaIds;
 						}
 
+						// BE expects startDate/endDate (node params stay from/to so saved workflows keep working)
 						if (filters.from) {
-							qs.from = filters.from;
+							qs.startDate = filters.from;
 						}
 						if (filters.to) {
-							qs.to = filters.to;
+							qs.endDate = filters.to;
 						}
 
 						options.url = `${baseUrl}/social-posts/analytics`;
