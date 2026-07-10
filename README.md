@@ -6,7 +6,7 @@ This is an n8n community node for [PostFast](https://postfa.st) - a comprehensiv
 
 ## Features
 
-- 🚀 **Multi-Platform Support**: Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Pinterest
+- 🚀 **Multi-Platform Support**: 11 platforms — Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Threads, Pinterest, Bluesky, Telegram, Google Business Profile
 - 📸 **Media Management**: Upload images and videos with pre-signed S3 URLs
 - 📅 **Advanced Scheduling**: Schedule posts using UTC timestamps (ISO 8601 format)
 - 🎯 **Platform-Specific Controls**: Reels, Stories, Shorts, Carousels, Drafts
@@ -51,12 +51,12 @@ To use this node, you'll need:
 Generate pre-signed S3 URLs for uploading media files.
 
 **Parameters:**
-- **Content Type**: MIME type (image/jpeg, image/png, image/gif, video/mp4, video/quicktime, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation)
-- **Count**: Number of URLs to generate (1-10)
+- **Content Type**: MIME type (image/jpeg, image/png, image/gif, image/webp, video/mp4, video/webm, video/mov, video/quicktime, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation)
+- **Count**: Number of URLs to generate (1-8; video and document types allow only 1 per request)
 
 **Limits:**
 - Max file size: 250 MB (video), 10 MB (image)
-- Rate limit: 150 requests per day
+- Rate limit: 150 requests per minute, 350 per day
 
 **Usage Example:**
 1. Use this operation to get S3 upload URLs
@@ -76,7 +76,7 @@ Retrieve all connected social media accounts for your workspace.
 - Account names and handles
 - Connection status
 
-**Rate limit:** 90 requests per hour
+**Rate limit:** 350 requests per hour
 
 #### Get Pinterest Boards
 Retrieve Pinterest boards for a connected Pinterest account. Use the returned `boardId` in the `Pinterest Board ID` control when creating Pinterest posts.
@@ -102,17 +102,16 @@ Retrieve YouTube playlists for a connected YouTube account. Use the returned `pl
 Create and schedule posts with platform-specific features.
 
 **Core Parameters:**
-- **Platform**: Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Pinterest
+- **Platform**: Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Threads, Pinterest, Bluesky, Telegram, Google Business Profile
 - **Social Media Account ID**: From Social Account > Get All
 - **Content**: Post text with emoji support
 - **Scheduled At**: ISO 8601 datetime
 - **Media Items**: Images/videos with S3 keys
-- **First Comment**: Automatic first comment posted ~10 seconds after publish (supported on X, Instagram, Facebook, YouTube, and Threads)
+- **First Comment**: Automatic first comment posted ~10 seconds after publish. Supported on Instagram, Facebook, YouTube, Threads, and X; TikTok only for accounts on the TikTok Business API; LinkedIn only for Community-Management-connected accounts.
 
 **Platform-Specific Controls:**
 
 **X (Twitter):**
-- Community ID for posting to X Communities
 - Retweet URL for retweeting without changes
 
 **Facebook:**
@@ -127,7 +126,7 @@ Create and schedule posts with platform-specific features.
 - Carousel support (up to 10 items)
 
 **TikTok:**
-- Privacy: Public, Mutual Friends, Only Me
+- Privacy: Public, Mutual Friends, Follower of Creator, Only Me (deprecated — Business API accounts ignore it: videos use the account-default privacy, photos default to public)
 - Allow Comments/Duet/Stitch
 - Draft mode
 - Brand Organic / Brand Content flags
@@ -171,6 +170,16 @@ Query and filter your scheduled posts with advanced options.
 - Error messages (for failed posts)
 - Platform-specific metadata
 
+#### Get Analytics
+Fetch published posts with their latest performance metrics.
+
+**Parameters:**
+- **From Date / To Date**: Date range (ISO 8601) — both are required by the API
+- **Platforms**: Optional platform filter
+- **Social Media Account IDs**: Optional comma-separated account UUIDs
+
+**Rate limit:** 350 requests per hour
+
 #### Delete Post
 Remove scheduled or failed posts.
 
@@ -207,17 +216,20 @@ Generate and distribute content across all channels.
 
 ## Rate Limits
 
-**Global Limits (per API key):**
+**Global Limits (per API key, rolling windows):**
 - 60 requests per minute
 - 150 requests per 5 minutes
 - 300 requests per hour
-- 1000 requests per day
+- 2000 requests per day
 
-**Endpoint-Specific:**
-- File uploads: 150/day
-- Post creation: 75/day
-- Post queries: 90/hour
+**Endpoint-Specific (override the matching global window):**
+- Get Upload URL: 150/minute, 350/day
+- Post creation: 150/minute, 350/day
+- Post queries (Get Many): 200/hour
+- Post analytics: 350/hour
 - Post deletion: 160/hour
+- Social accounts (Get All): 350/hour
+- Pinterest boards / YouTube playlists: 90/hour
 
 ## Error Handling
 
@@ -265,9 +277,11 @@ npm run lint    # Check code quality
 ```
 
 ### Publishing
+Releases are published by GitHub Actions on tag push (`.github/workflows/publish.yml`, npm trusted publishing with provenance). Never `npm publish` locally.
+
 ```bash
-npm login
-npm publish --access public
+git tag 0.1.20
+git push origin 0.1.20
 ```
 
 ## Support
