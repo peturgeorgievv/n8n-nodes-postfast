@@ -39,7 +39,7 @@ temp/
 *.tmp
 
 # Package manager
-package-lock.json
+# package-lock.json committed for npm ci reproducibility (publish.yml)
 yarn.lock
 pnpm-lock.yaml
 
