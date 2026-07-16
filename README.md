@@ -4,6 +4,15 @@ This is an n8n community node for [PostFast](https://postfa.st) - a comprehensiv
 
 **Node Name in n8n:** PostFast - Social Media Management
 
+## Verified n8n Community Node
+
+PostFast is a [verified community node](https://docs.n8n.io/integrations/community-nodes/installation-and-management/install-verified-community-nodes) — reviewed by n8n and installable directly from the nodes panel, including on n8n Cloud.
+
+- **n8n Cloud**: search for "PostFast" in the nodes panel and install it from the **More from the community** section (instance owners can toggle verified community nodes in the Cloud Admin Panel)
+- **Self-hosted**: **Settings** > **Community Nodes** > **Install** > `n8n-nodes-postfast`
+
+Official workflow templates: [n8n.io/creators/peturgeorgievv](https://n8n.io/creators/peturgeorgievv)
+
 ## Features
 
 - 🚀 **Multi-Platform Support**: 11 platforms — Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Threads, Pinterest, Bluesky, Telegram, Google Business Profile
