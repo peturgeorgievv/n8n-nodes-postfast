@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-postfast",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "n8n community node for PostFast social media scheduling API",
   "keywords": [
     "n8n-community-node-package",
@@ -44,7 +44,7 @@
     ]
   },
   "devDependencies": {
-    "@n8n/node-cli": "^0.13.0",
+    "@n8n/node-cli": "^0.39.3",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "globals": "^16.4.0",

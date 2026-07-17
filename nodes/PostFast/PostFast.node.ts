@@ -4,16 +4,21 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	NodeApiError,
+	NodeConnectionTypes,
 	NodeOperationError,
 	IDataObject,
 	IHttpRequestOptions,
+	JsonObject,
 } from 'n8n-workflow';
 
 export class PostFast implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'PostFast - Social Media Management',
 		name: 'postFast',
-		icon: 'file:postfast.svg',
+		icon: {
+			light: 'file:postfast.svg',
+			dark: 'file:postfast.dark.svg',
+		},
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -21,8 +26,9 @@ export class PostFast implements INodeType {
 		defaults: {
 			name: 'PostFast - Social Media',
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		usableAsTool: true,
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'postFastApi',
@@ -91,22 +97,22 @@ export class PostFast implements INodeType {
 				},
 				options: [
 					{
-						name: 'Get All',
+						name: 'Get Many',
 						value: 'getAll',
-						description: 'Get all connected social media accounts',
-						action: 'Get all social accounts',
+						description: 'Get many connected social media accounts',
+						action: 'Get many social accounts',
 					},
 					{
 						name: 'Get Pinterest Boards',
 						value: 'getPinterestBoards',
 						description: 'Get Pinterest boards for a connected account',
-						action: 'Get Pinterest boards',
+						action: 'Get many boards',
 					},
 					{
 						name: 'Get YouTube Playlists',
 						value: 'getYoutubePlaylists',
 						description: 'Get YouTube playlists for a connected account',
-						action: 'Get YouTube playlists',
+						action: 'Get many playlists',
 					},
 				],
 				default: 'getAll',
@@ -168,6 +174,30 @@ export class PostFast implements INodeType {
 				},
 				options: [
 					{
+						name: 'Document (PDF)',
+						value: 'application/pdf',
+					},
+					{
+						name: 'Document (PowerPoint PPTX)',
+						value: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+					},
+					{
+						name: 'Document (PowerPoint)',
+						value: 'application/vnd.ms-powerpoint',
+					},
+					{
+						name: 'Document (Word DOCX)',
+						value: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+					},
+					{
+						name: 'Document (Word)',
+						value: 'application/msword',
+					},
+					{
+						name: 'Image (GIF)',
+						value: 'image/gif',
+					},
+					{
 						name: 'Image (JPEG)',
 						value: 'image/jpeg',
 					},
@@ -176,48 +206,24 @@ export class PostFast implements INodeType {
 						value: 'image/png',
 					},
 					{
-						name: 'Image (GIF)',
-						value: 'image/gif',
-					},
-					{
 						name: 'Image (WebP)',
 						value: 'image/webp',
-					},
-					{
-						name: 'Video (MP4)',
-						value: 'video/mp4',
-					},
-					{
-						name: 'Video (WebM)',
-						value: 'video/webm',
 					},
 					{
 						name: 'Video (MOV)',
 						value: 'video/mov',
 					},
 					{
+						name: 'Video (MP4)',
+						value: 'video/mp4',
+					},
+					{
 						name: 'Video (QuickTime)',
 						value: 'video/quicktime',
 					},
 					{
-						name: 'Document (PDF)',
-						value: 'application/pdf',
-					},
-					{
-						name: 'Document (Word)',
-						value: 'application/msword',
-					},
-					{
-						name: 'Document (Word DOCX)',
-						value: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-					},
-					{
-						name: 'Document (PowerPoint)',
-						value: 'application/vnd.ms-powerpoint',
-					},
-					{
-						name: 'Document (PowerPoint PPTX)',
-						value: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+						name: 'Video (WebM)',
+						value: 'video/webm',
 					},
 				],
 				default: 'image/jpeg',
@@ -256,7 +262,7 @@ export class PostFast implements INodeType {
 					},
 				},
 				default: '',
-				description: 'ID of the connected Pinterest account (get from Social Account > Get All)',
+				description: 'ID of the connected Pinterest account (get from Social Account > Get Many)',
 				placeholder: '550e8400-e29b-41d4-a716-446655440001',
 			},
 
@@ -275,7 +281,7 @@ export class PostFast implements INodeType {
 					},
 				},
 				default: '',
-				description: 'ID of the connected YouTube account (get from Social Account > Get All)',
+				description: 'ID of the connected YouTube account (get from Social Account > Get Many)',
 				placeholder: '550e8400-e29b-41d4-a716-446655440001',
 			},
 
@@ -294,12 +300,12 @@ export class PostFast implements INodeType {
 				},
 				options: [
 					{
-						name: 'Scheduled',
-						value: 'SCHEDULED',
-					},
-					{
 						name: 'Draft',
 						value: 'DRAFT',
+					},
+					{
+						name: 'Scheduled',
+						value: 'SCHEDULED',
 					},
 				],
 				default: 'SCHEDULED',
@@ -349,15 +355,6 @@ export class PostFast implements INodeType {
 						displayName: 'Post',
 						values: [
 							{
-								displayName: 'Social Media Account ID',
-								name: 'socialMediaId',
-								type: 'string',
-								default: '',
-								required: true,
-								description: 'ID of the connected social media account (get from Social Account > Get All)',
-								placeholder: '550e8400-e29b-41d4-a716-446655440001',
-							},
-							{
 								displayName: 'Content',
 								name: 'content',
 								type: 'string',
@@ -369,11 +366,11 @@ export class PostFast implements INodeType {
 								description: 'The text content of the post',
 							},
 							{
-								displayName: 'Scheduled At',
-								name: 'scheduledAt',
-								type: 'dateTime',
+								displayName: 'First Comment',
+								name: 'firstComment',
+								type: 'string',
 								default: '',
-								description: 'When to publish the post (ISO 8601 format). Required unless status is DRAFT.',
+								description: 'Text for an automatic first comment, posted ~10 seconds after the post publishes. Supported on Instagram, Facebook, YouTube, Threads, and X. TikTok: only accounts connected via the TikTok Business API. LinkedIn: only accounts connected with the Community Management grant. Not supported on Pinterest, Bluesky, Telegram, or Google Business Profile.',
 							},
 							{
 								displayName: 'Media Input Mode',
@@ -381,14 +378,14 @@ export class PostFast implements INodeType {
 								type: 'options',
 								options: [
 									{
-										name: 'UI (Manual)',
-										value: 'ui',
-										description: 'Add media items one by one using the form',
-									},
-									{
 										name: 'JSON (Dynamic)',
 										value: 'json',
 										description: 'Pass a JSON array, useful for dynamic carousel posts',
+									},
+									{
+										name: 'UI (Manual)',
+										value: 'ui',
+										description: 'Add media items one by one using the form',
 									},
 								],
 								default: 'ui',
@@ -472,15 +469,24 @@ export class PostFast implements INodeType {
 										mediaInputMode: ['json'],
 									},
 								},
-								description: 'JSON array of media objects. Each object: { "key": "image/uuid.jpg", "type": "IMAGE", "sortOrder": 0, "coverTimestamp": "" }. Use an expression like {{ $json.mediaItems }} to pass dynamically.',
+								description: 'JSON array of media objects. Each object: { "key": "image/uuid.jpg", "type": "IMAGE", "sortOrder": 0, "coverTimestamp": "" }. Use an expression to pass the array dynamically.',
 								placeholder: '[{ "key": "image/abc.jpg", "type": "IMAGE", "sortOrder": 0 }]',
 							},
 							{
-								displayName: 'First Comment',
-								name: 'firstComment',
+								displayName: 'Scheduled At',
+								name: 'scheduledAt',
+								type: 'dateTime',
+								default: '',
+								description: 'When to publish the post (ISO 8601 format). Required unless status is DRAFT.',
+							},
+							{
+								displayName: 'Social Media Account ID',
+								name: 'socialMediaId',
 								type: 'string',
 								default: '',
-								description: 'Text for an automatic first comment, posted ~10 seconds after the post publishes. Supported on Instagram, Facebook, YouTube, Threads, and X. TikTok: only accounts connected via the TikTok Business API. LinkedIn: only accounts connected with the Community Management grant. Not supported on Pinterest, Bluesky, Telegram, or Google Business Profile.',
+								required: true,
+								description: 'ID of the connected social media account (get from Social Account > Get Many)',
+								placeholder: '550e8400-e29b-41d4-a716-446655440001',
 							},
 						],
 					},
@@ -502,16 +508,6 @@ export class PostFast implements INodeType {
 				},
 				description: 'Platform-specific controls that apply to ALL posts in this batch',
 				options: [
-					// X (Twitter) Controls
-					{
-						displayName: 'X Retweet URL',
-						name: 'xRetweetUrl',
-						type: 'string',
-						default: '',
-						description: 'URL of tweet to retweet without changes. Content and media are ignored when this is provided.',
-						placeholder: 'https://x.com/username/status/1234567890',
-					},
-					// Facebook Controls
 					{
 						displayName: 'Facebook Content Type',
 						name: 'facebookContentType',
@@ -544,7 +540,21 @@ export class PostFast implements INodeType {
 						description: 'Comma-separated Facebook usernames for Reel collaboration',
 						placeholder: 'username1,username2',
 					},
-					// Instagram Controls
+					{
+						displayName: 'Instagram Collaborators',
+						name: 'instagramCollaborators',
+						type: 'string',
+						default: '',
+						description: 'Comma-separated Instagram usernames for collaboration',
+						placeholder: 'username1,username2',
+					},
+					{
+						displayName: 'Instagram Post to Grid',
+						name: 'instagramPostToGrid',
+						type: 'boolean',
+						default: true,
+						description: 'Whether to post to Instagram profile grid',
+					},
 					{
 						displayName: 'Instagram Publish Type',
 						name: 'instagramPublishType',
@@ -567,21 +577,93 @@ export class PostFast implements INodeType {
 						description: 'Type of Instagram content to create',
 					},
 					{
-						displayName: 'Instagram Post to Grid',
-						name: 'instagramPostToGrid',
-						type: 'boolean',
-						default: true,
-						description: 'Whether to post to Instagram profile grid',
-					},
-					{
-						displayName: 'Instagram Collaborators',
-						name: 'instagramCollaborators',
+						displayName: 'LinkedIn Attachment Key',
+						name: 'linkedinAttachmentKey',
 						type: 'string',
 						default: '',
-						description: 'Comma-separated Instagram usernames for collaboration',
-						placeholder: 'username1,username2',
+						description: 'S3 key of the uploaded document file (from File > Get Upload URL). Cannot be used together with mediaItems.',
+						placeholder: 'file/abc123-uuid.pdf',
 					},
-					// TikTok Controls
+					{
+						displayName: 'LinkedIn Attachment Title',
+						name: 'linkedinAttachmentTitle',
+						type: 'string',
+						default: '',
+						description: 'Display title for the document attachment (default: "Document")',
+						placeholder: 'Q4 2025 Report',
+					},
+					{
+						displayName: 'Pinterest Board ID',
+						name: 'pinterestBoardId',
+						type: 'string',
+						default: '',
+						description: 'Required for Pinterest posts. Get available boards from Social Account > Get Pinterest Boards.',
+						placeholder: '1234567890123456789',
+					},
+					{
+						displayName: 'Pinterest Link',
+						name: 'pinterestLink',
+						type: 'string',
+						default: '',
+						description: 'Destination URL when users click the pin',
+						placeholder: 'https://example.com/my-article',
+					},
+					{
+						displayName: 'TikTok Allow Comments',
+						name: 'tiktokAllowComments',
+						type: 'boolean',
+						default: true,
+						description: 'Whether to allow comments on TikTok',
+					},
+					{
+						displayName: 'TikTok Allow Duet',
+						name: 'tiktokAllowDuet',
+						type: 'boolean',
+						default: true,
+						description: 'Whether to allow duets on TikTok',
+					},
+					{
+						displayName: 'TikTok Allow Stitch',
+						name: 'tiktokAllowStitch',
+						type: 'boolean',
+						default: true,
+						description: 'Whether to allow stitch on TikTok',
+					},
+					{
+						displayName: 'TikTok Auto Add Music',
+						name: 'tiktokAutoAddMusic',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to auto-add music',
+					},
+					{
+						displayName: 'TikTok Brand Content',
+						name: 'tiktokBrandContent',
+						type: 'boolean',
+						default: false,
+						description: 'Whether this is branded content',
+					},
+					{
+						displayName: 'TikTok Brand Organic',
+						name: 'tiktokBrandOrganic',
+						type: 'boolean',
+						default: false,
+						description: 'Whether this is brand organic content',
+					},
+					{
+						displayName: 'TikTok Is AIGC',
+						name: 'tiktokIsAigc',
+						type: 'boolean',
+						default: false,
+						description: 'Whether this content is AI-generated (AIGC disclosure)',
+					},
+					{
+						displayName: 'TikTok Is Draft',
+						name: 'tiktokIsDraft',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to save as draft on TikTok',
+					},
 					{
 						displayName: 'TikTok Privacy',
 						name: 'tiktokPrivacy',
@@ -608,68 +690,40 @@ export class PostFast implements INodeType {
 						description: 'Privacy setting for TikTok post. Deprecated: accounts connected via the TikTok Business API ignore this — videos use the account-default privacy and photos default to public.',
 					},
 					{
-						displayName: 'TikTok Is Draft',
-						name: 'tiktokIsDraft',
-						type: 'boolean',
-						default: false,
-						description: 'Whether to save as draft on TikTok',
-					},
-					{
-						displayName: 'TikTok Allow Comments',
-						name: 'tiktokAllowComments',
-						type: 'boolean',
-						default: true,
-						description: 'Whether to allow comments on TikTok',
-					},
-					{
-						displayName: 'TikTok Allow Duet',
-						name: 'tiktokAllowDuet',
-						type: 'boolean',
-						default: true,
-						description: 'Whether to allow duets on TikTok',
-					},
-					{
-						displayName: 'TikTok Allow Stitch',
-						name: 'tiktokAllowStitch',
-						type: 'boolean',
-						default: true,
-						description: 'Whether to allow stitch on TikTok',
-					},
-					{
-						displayName: 'TikTok Brand Organic',
-						name: 'tiktokBrandOrganic',
-						type: 'boolean',
-						default: false,
-						description: 'Whether this is brand organic content',
-					},
-					{
-						displayName: 'TikTok Brand Content',
-						name: 'tiktokBrandContent',
-						type: 'boolean',
-						default: false,
-						description: 'Whether this is branded content',
-					},
-					{
-						displayName: 'TikTok Auto Add Music',
-						name: 'tiktokAutoAddMusic',
-						type: 'boolean',
-						default: false,
-						description: 'Whether to auto-add music',
-					},
-					{
-						displayName: 'TikTok Is AIGC',
-						name: 'tiktokIsAigc',
-						type: 'boolean',
-						default: false,
-						description: 'Whether this content is AI-generated (AIGC disclosure)',
-					},
-					// YouTube Controls
-					{
-						displayName: 'YouTube Title',
-						name: 'youtubeTitle',
+						displayName: 'X Retweet URL',
+						name: 'xRetweetUrl',
 						type: 'string',
 						default: '',
-						description: 'Video title. If not provided, first 100 chars of content will be used.',
+						description: 'URL of tweet to retweet without changes. Content and media are ignored when this is provided.',
+						placeholder: 'https://x.com/username/status/1234567890',
+					},
+					{
+						displayName: 'YouTube Category ID',
+						name: 'youtubeCategoryId',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: 'YouTube Is Short',
+						name: 'youtubeIsShort',
+						type: 'boolean',
+						default: true,
+						description: 'Whether this is a YouTube Short',
+					},
+					{
+						displayName: 'YouTube Made for Kids',
+						name: 'youtubeMadeForKids',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the video is designated as made for kids (COPPA compliance)',
+					},
+					{
+						displayName: 'YouTube Playlist ID',
+						name: 'youtubePlaylistId',
+						type: 'string',
+						default: '',
+						description: 'YouTube playlist ID to add the video to after publishing. Get available playlists from Social Account > Get YouTube Playlists.',
+						placeholder: 'PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf',
 					},
 					{
 						displayName: 'YouTube Privacy',
@@ -701,35 +755,6 @@ export class PostFast implements INodeType {
 						placeholder: 'tag1,tag2,tag3',
 					},
 					{
-						displayName: 'YouTube Category ID',
-						name: 'youtubeCategoryId',
-						type: 'string',
-						default: '',
-						description: 'YouTube category ID',
-					},
-					{
-						displayName: 'YouTube Is Short',
-						name: 'youtubeIsShort',
-						type: 'boolean',
-						default: true,
-						description: 'Whether this is a YouTube Short',
-					},
-					{
-						displayName: 'YouTube Made for Kids',
-						name: 'youtubeMadeForKids',
-						type: 'boolean',
-						default: false,
-						description: 'COPPA compliance flag',
-					},
-					{
-						displayName: 'YouTube Playlist ID',
-						name: 'youtubePlaylistId',
-						type: 'string',
-						default: '',
-						description: 'YouTube playlist ID to add the video to after publishing. Get available playlists from Social Account > Get YouTube Playlists.',
-						placeholder: 'PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf',
-					},
-					{
 						displayName: 'YouTube Thumbnail Key',
 						name: 'youtubeThumbnailKey',
 						type: 'string',
@@ -737,39 +762,12 @@ export class PostFast implements INodeType {
 						description: 'Media key for a custom YouTube thumbnail image (uploaded via File > Get Upload URL). Formats: JPEG, PNG, GIF, BMP, WebP. Max 2 MB, recommended 1280x720 (16:9). Requires phone-verified YouTube channel.',
 						placeholder: 'image/abc123-uuid.jpg',
 					},
-					// Pinterest Controls
 					{
-						displayName: 'Pinterest Board ID',
-						name: 'pinterestBoardId',
+						displayName: 'YouTube Title',
+						name: 'youtubeTitle',
 						type: 'string',
 						default: '',
-						description: 'Required for Pinterest posts. Get available boards from Social Account > Get Pinterest Boards.',
-						placeholder: '1234567890123456789',
-					},
-					{
-						displayName: 'Pinterest Link',
-						name: 'pinterestLink',
-						type: 'string',
-						default: '',
-						description: 'Destination URL when users click the pin',
-						placeholder: 'https://example.com/my-article',
-					},
-					// LinkedIn Controls
-					{
-						displayName: 'LinkedIn Attachment Key',
-						name: 'linkedinAttachmentKey',
-						type: 'string',
-						default: '',
-						description: 'S3 key of the uploaded document file (from File > Get Upload URL). Cannot be used together with mediaItems.',
-						placeholder: 'file/abc123-uuid.pdf',
-					},
-					{
-						displayName: 'LinkedIn Attachment Title',
-						name: 'linkedinAttachmentTitle',
-						type: 'string',
-						default: '',
-						description: 'Display title for the document attachment (default: "Document")',
-						placeholder: 'Q4 2025 Report',
+						description: 'Video title. If not provided, first 100 chars of content will be used.',
 					},
 				],
 			},
@@ -899,7 +897,7 @@ export class PostFast implements INodeType {
 					minValue: 1,
 					maxValue: 50,
 				},
-				default: 20,
+				default: 50,
 				description: 'Max number of results to return',
 			},
 			{
@@ -915,6 +913,20 @@ export class PostFast implements INodeType {
 					},
 				},
 				options: [
+					{
+						displayName: 'From Date',
+						name: 'from',
+						type: 'dateTime',
+						default: '',
+						description: 'Filter posts scheduled from this date (ISO 8601)',
+					},
+					{
+						displayName: 'Page',
+						name: 'page',
+						type: 'number',
+						default: 0,
+						description: 'Page number for pagination (0-based)',
+					},
 					{
 						displayName: 'Platforms',
 						name: 'platforms',
@@ -978,27 +990,20 @@ export class PostFast implements INodeType {
 								value: 'DRAFT',
 							},
 							{
-								name: 'Scheduled',
-								value: 'SCHEDULED',
+								name: 'Failed',
+								value: 'FAILED',
 							},
 							{
 								name: 'Published',
 								value: 'PUBLISHED',
 							},
 							{
-								name: 'Failed',
-								value: 'FAILED',
+								name: 'Scheduled',
+								value: 'SCHEDULED',
 							},
 						],
 						default: [],
 						description: 'Filter posts by status',
-					},
-					{
-						displayName: 'From Date',
-						name: 'from',
-						type: 'dateTime',
-						default: '',
-						description: 'Filter posts scheduled from this date (ISO 8601)',
 					},
 					{
 						displayName: 'To Date',
@@ -1006,13 +1011,6 @@ export class PostFast implements INodeType {
 						type: 'dateTime',
 						default: '',
 						description: 'Filter posts scheduled until this date (ISO 8601)',
-					},
-					{
-						displayName: 'Page',
-						name: 'page',
-						type: 'number',
-						default: 0,
-						description: 'Page number for pagination (0-based)',
 					},
 				],
 			},
@@ -1344,9 +1342,10 @@ export class PostFast implements INodeType {
 
 				// Throw appropriate error type
 				if (err.response) {
-					throw new NodeApiError(this.getNode(), {}, {
+					throw new NodeApiError(this.getNode(), error as JsonObject, {
 						message: errorMessage,
 						description: errorDescription,
+						itemIndex: i,
 					});
 				} else {
 					throw new NodeOperationError(this.getNode(), errorMessage, {

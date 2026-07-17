@@ -76,7 +76,7 @@ Generate pre-signed S3 URLs for uploading media files.
 
 ### 👥 Social Account Resource
 
-#### Get All
+#### Get Many
 Retrieve all connected social media accounts for your workspace.
 
 **Returns:**
@@ -91,7 +91,7 @@ Retrieve all connected social media accounts for your workspace.
 Retrieve Pinterest boards for a connected Pinterest account. Use the returned `boardId` in the `Pinterest Board ID` control when creating Pinterest posts.
 
 **Parameters:**
-- **Social Media Account ID**: ID of the connected Pinterest account (from Get All)
+- **Social Media Account ID**: ID of the connected Pinterest account (from Get Many)
 
 **Rate limit:** 90 requests per hour
 
@@ -99,7 +99,7 @@ Retrieve Pinterest boards for a connected Pinterest account. Use the returned `b
 Retrieve YouTube playlists for a connected YouTube account. Use the returned `playlistId` in the `YouTube Playlist ID` control when creating YouTube posts.
 
 **Parameters:**
-- **Social Media Account ID**: ID of the connected YouTube account (from Get All)
+- **Social Media Account ID**: ID of the connected YouTube account (from Get Many)
 
 **Rate limit:** 90 requests per hour
 
@@ -112,7 +112,7 @@ Create and schedule posts with platform-specific features.
 
 **Core Parameters:**
 - **Platform**: Facebook, Instagram, TikTok, Twitter/X, LinkedIn, YouTube, Threads, Pinterest, Bluesky, Telegram, Google Business Profile
-- **Social Media Account ID**: From Social Account > Get All
+- **Social Media Account ID**: From Social Account > Get Many
 - **Content**: Post text with emoji support
 - **Scheduled At**: ISO 8601 datetime
 - **Media Items**: Images/videos with S3 keys
@@ -237,7 +237,7 @@ Generate and distribute content across all channels.
 - Post queries (Get Many): 200/hour
 - Post analytics: 350/hour
 - Post deletion: 160/hour
-- Social accounts (Get All): 350/hour
+- Social accounts (Get Many): 350/hour
 - Pinterest boards / YouTube playlists: 90/hour
 
 ## Error Handling

@@ -2,6 +2,7 @@ import {
 	IAuthenticateGeneric,
 	ICredentialTestRequest,
 	ICredentialType,
+	Icon,
 	INodeProperties,
 } from 'n8n-workflow';
 
@@ -9,6 +10,10 @@ export class PostFastApi implements ICredentialType {
 	name = 'postFastApi';
 	displayName = 'PostFast API';
 	documentationUrl = 'https://github.com/peturgeorgievv/n8n-nodes-postfast';
+	icon: Icon = {
+		light: 'file:postfast.svg',
+		dark: 'file:postfast.dark.svg',
+	};
 	properties: INodeProperties[] = [
 		{
 			displayName: 'API Key',
